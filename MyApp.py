@@ -101,7 +101,7 @@ class MyApp(ShowBase):
         angleRadians = angleDegrees * (pi / 180.0)
         self.camera.setPos(20 * sin(angleRadians), -20 * cos(angleRadians), 3)
         self.camera.setHpr(angleDegrees, 0, 0)
-        #self.screenshot()
+        self.screenshot('./dataset/images/')
         return Task.cont
 
     def draw_box(self, task):
