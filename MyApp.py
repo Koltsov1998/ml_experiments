@@ -8,6 +8,20 @@ from panda3d.core import *
 
 from direct.interval.IntervalGlobal import *
 
+import json
+import os
+from os import listdir
+
+class AnnotationItem:
+    name = ''
+    x1 = 0
+    y1 = 0
+    x2 = 0
+    y2 = 0
+
+class Annotations:
+    items = []
+
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
@@ -74,7 +88,15 @@ class MyApp(ShowBase):
 
         self.taskMgr.add(self.draw_box, "draw-box")
 
+        #self.annotations = Annotations();
+        self.annotations = {
+            'count': 0,
+            'items': []
+        }
+        self.wroteAnnotations = False;
 
+        #for filename in listdir('./dataset/images'):
+        #    os.remove(filename)
 
     def toggleRamp(self):
         if self.activeRamp == 0:
@@ -101,7 +123,7 @@ class MyApp(ShowBase):
         angleRadians = angleDegrees * (pi / 180.0)
         self.camera.setPos(20 * sin(angleRadians), -20 * cos(angleRadians), 3)
         self.camera.setHpr(angleDegrees, 0, 0)
-        self.screenshot('./dataset/images/')
+
         return Task.cont
 
     def draw_box(self, task):
@@ -118,6 +140,25 @@ class MyApp(ShowBase):
         segs.draw_to(max[0], 0, max[1])
         segs.draw_to(max[0], 0, min[1])
         segs.draw_to(min[0], 0, min[1])
+
+        annotation = {
+            'name' : 'panda',
+            'x1' : min[0],
+            'x2' : max[0],
+            'y1' : min[1],
+            'y2' : max[1]
+        }
+
+        self.annotations['items'].append(annotation)
+        self.annotations['count'] = self.annotations['count'] + 1
+
+        if self.annotations['count'] == 100:
+            annotations_json = json.dumps(self.annotations)
+            f = open("./dataset/annotations.json", "w")
+            f.write(annotations_json)
+            self.wroteAnnotations = True
+
+        self.screenshot(f"./dataset/images/{self.annotations['count']}.")
 
         self.line_node.remove_all_geoms()
         segs.create(self.line_node)
